@@ -1,0 +1,16 @@
+{
+  "name": "@startupjs/client-model",
+  "version": "0.1.0",
+  "description": "Setup racer model to be able to connect to the server. Get the singleton client-side model",
+  "type": "module",
+  "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {},
+  "dependencies": {
+    "racer": "1.0.1",
+    "racer-highway": "^10.0.1"
+  },
+  "license": "MIT"
+}
