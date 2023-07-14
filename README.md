@@ -2,6 +2,18 @@
 
 > Signals with an ORM and backend support
 
+## Development
+
+```
+npm i
+```
+
+## Test
+
+```
+npm test
+```
+
 ## Refs
 
 - https://github.com/YousefED/reactive

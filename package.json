@@ -1,5 +1,9 @@
 {
   "private": true,
+  "engines": {
+    "node": ">=20",
+    "npm": ">=7"
+  },
   "workspaces": [
     "packages/client-model",
     "packages/signals"
