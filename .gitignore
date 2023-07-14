@@ -2,4 +2,6 @@ node_modules
 .DS_Store
 .*.swp
 ._*
-npm-debug.log
+*.log
+.env
+.env.local
