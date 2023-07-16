@@ -1,11 +1,9 @@
 import { it, describe } from 'node:test'
 import { strict as assert } from 'node:assert'
-import signal from '../index.js'
+import $, { signal } from '../index.js'
 import { __DEBUG_SIGNALS_CACHE__ as signalsCache } from '../src/signal.js'
 
 describe('dot syntax', () => {
-  const $ = signal()
-
   it('navigation', () => {
     $._session.a.b.c.set(1)
     assert.equal($._session.a.b.c.get(), 1)
