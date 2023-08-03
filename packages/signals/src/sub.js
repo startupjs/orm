@@ -1,3 +1,5 @@
+// TODO: implement
+
 const isString = t => typeof t === 'string'
 const isArray = t => Array.isArray(t)
 const isBoolean = t => typeof t === 'boolean'

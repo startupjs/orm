@@ -1,4 +1,4 @@
-import { getSignal, isInternalSymbol, SEGMENTS, getModel, getParentSignal, getLeaf } from './signal.js'
+import { getSignal, isInternalSymbol, SEGMENTS, QUERY, IS_EXTRA_QUERY, getModel, getParentSignal, getLeaf } from './signal.js'
 
 function registerRunningReactionForOperation () {}
 function hasRunningReaction () {}
@@ -10,11 +10,26 @@ const COLLECTIONS_MAPPING = {
   page: '_page',
   render: '$render'
 }
+const QUERY_METHODS = ['get', 'getIds', 'getExtra', 'subscribe', 'unsubscribe', 'fetch', 'unfetch']
+export const isQueryMethod = method => QUERY_METHODS.includes(method)
 
 // intercept get operations on observables to know which reaction uses their properties
 function get (target, key, receiver) {
   // don't do any custom processing on symbols
   if (typeof key === 'symbol') return Reflect.get(target, key, receiver)
+
+  // special treatment of Query methods
+  if (target[QUERY]) {
+    if (isQueryMethod(key)) {
+      return Reflect.get(target[QUERY], key, target[QUERY])
+    }
+    // support .map() on regular queries (for looping in JSX)
+    if (!target[IS_EXTRA_QUERY] && key === 'map') {
+      const ids = target[QUERY].getIds()
+      const segments = [...target[SEGMENTS]] // clone this array to help GC, since we return clojure fns
+      return (fn, thisArg) => ids.map(id => getSignal([...segments, id])).map(fn, thisArg)
+    }
+  }
 
   // for simplified destructuring the $key is aliased to key.
   // To explicitly get the $key use $$key
@@ -23,6 +38,13 @@ function get (target, key, receiver) {
   // perform additional mapping for $-collections and _-collections
   if (target[SEGMENTS].length === 0) key = COLLECTIONS_MAPPING[key] || key
 
+  if (target[QUERY]) {
+    // with an extra query we go directly into its extra content
+    // (for regular queries we just treat it as a collection path, so the default logic below works)
+    if (target[IS_EXTRA_QUERY]) return getSignal([...target[QUERY].extraSegments, key])
+    // special treatment for the magic 'ids' field of queries (returns signal to the actual ids path)
+    if (key === 'ids') return getSignal([...target[QUERY].idsSegments])
+  }
   return getSignal([...target[SEGMENTS], key])
 }
 
@@ -42,12 +64,12 @@ function apply (target, thisArg, argumentsList) {
 function has (target, key) {
   const result = Reflect.has(target, key)
   // register and save (observable.prop -> runningReaction)
-  registerRunningReactionForOperation({ target, key, type: 'has' })
+  registerRunningReactionForOperation({ target: getSignal(target), key, type: 'has' })
   return result
 }
 
 function ownKeys (target) {
-  registerRunningReactionForOperation({ target, type: 'iterate' })
+  registerRunningReactionForOperation({ target: getSignal(target), type: 'iterate' })
   return Reflect.ownKeys(target)
 }
 

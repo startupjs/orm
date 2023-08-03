@@ -56,6 +56,18 @@ describe('dot syntax', () => {
   })
 })
 
+describe.skip('iteration', () => {
+  it('.map() over collections', () => {
+    const { $users, $playerIds, $players } = $.session
+    $users.one.name.set('John')
+    $users.two.name.set('Jane')
+    $users.three.name.set('Jack')
+    $playerIds.set(['one', 'two'])
+    $players.refList($users.path(), $playerIds.path())
+    assert.equal($players.getIds(), ['one', 'two'], '.getIds() gets correct player ids')
+  })
+})
+
 // for some reason the cache is not cleared if we just call global.gc()
 // so we need to wait for the next tick before and after calling it
 async function runGc () {
