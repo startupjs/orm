@@ -1,5 +1,5 @@
-import rootModel from '@startupjs/client-model'
 import handlers from './handlers.js'
+import { getRootModel } from './model.js'
 
 export const SEGMENTS = Symbol('path segments')
 export const MODEL = Symbol('scoped model')
@@ -74,7 +74,7 @@ export function getLeaf (proxyTarget) {
 }
 
 export function getModel (proxyTarget) {
-  if (!proxyTarget[MODEL]) proxyTarget[MODEL] = rootModel.scope(proxyTarget[SEGMENTS].join('.'))
+  if (!proxyTarget[MODEL]) proxyTarget[MODEL] = getRootModel().scope(proxyTarget[SEGMENTS].join('.'))
   return proxyTarget[MODEL]
 }
 

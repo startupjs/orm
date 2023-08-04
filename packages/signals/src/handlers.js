@@ -1,9 +1,5 @@
 import { getSignal, isInternalSymbol, SEGMENTS, QUERY, IS_EXTRA_QUERY, getModel, getParentSignal, getLeaf } from './signal.js'
 
-function registerRunningReactionForOperation () {}
-function hasRunningReaction () {}
-
-const REACTIVE_METHODS = ['get', 'getCopy', 'getDeepCopy']
 const REGEX_$ = /^\$/
 const COLLECTIONS_MAPPING = {
   session: '_session',
@@ -52,24 +48,14 @@ function apply (target, thisArg, argumentsList) {
   const methodName = getLeaf(target)
   const parent = getParentSignal(target)
   const model = getModel(parent)
-
-  if (REACTIVE_METHODS.includes(methodName) && hasRunningReaction()) {
-    // register and save (observable.prop -> runningReaction)
-    registerRunningReactionForOperation({ target: parent, type: 'get' })
-  }
-
   return Reflect.apply(model[methodName], model, argumentsList)
 }
 
 function has (target, key) {
-  const result = Reflect.has(target, key)
-  // register and save (observable.prop -> runningReaction)
-  registerRunningReactionForOperation({ target: getSignal(target), key, type: 'has' })
-  return result
+  return Reflect.has(target, key)
 }
 
 function ownKeys (target) {
-  registerRunningReactionForOperation({ target: getSignal(target), type: 'iterate' })
   return Reflect.ownKeys(target)
 }
 
